@@ -36,12 +36,61 @@ app.get('/', (req, res) => {
     });
 });
 
+//Extraction des données du formulaire
+app.use(express.urlencoded({extended: false}))
+
+app.post("/notes", (req, res) => {
+    let id = req.body.id === "" ? null : req.body.id;
+    let titre = req.body.titre;
+    let description = req.body.description;
+
+    let reqSql = id === null ? 
+    'INSERT INTO list (id, titre, description) VALUES (?, ?, ?)' : 
+    "UPDATE list SET titre = ?, description = ? WHERE id = ?";
+
+let data = id == null ? [null, titre, description] : [titre, description, id]
+
+    req.getConnection((error, connection) => {
+        if (error) {
+            console.log(error);
+        } else {
+            connection.query(reqSql,
+                data,
+             (error, resultat) => {
+                if (error) {
+                    console.log(error);
+                } else {
+                    res.status(300).redirect('/');
+                }
+            });
+        }
+    });
+});
+
+
+app.delete("/notes/:id", (req, res) => {
+    let id = req.params.id;
+    req.getConnection((error, connection) => {
+        if (error) {
+            console.log(error);
+        }else {
+            connection.query("DELETE FROM list WHERE id = ?", [id], (error, resultat) => {
+                if (error) {
+                    console.log(error);
+                }else {
+                    res.status(200).json({routeRacine: '/'});
+                }
+            })
+        }
+    })
+})
+
 app.get('/about', (req, res) => {
-    res.status(200).render('about', {hourConnect, notes});
+    res.status(200).render('about');
 })
 
 app.use((req, res) => {
-    res.status(404).render('404', {hourConnect, notes});
+    res.status(404).render('404');
 })
 
 app.listen(8000);

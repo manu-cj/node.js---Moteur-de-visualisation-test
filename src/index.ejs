@@ -9,7 +9,8 @@
     <div style="width: 50%; margin: auto;">
         <%- include('./components/header.ejs'); %>
         <section>
-            <form action="" method="">
+            <form action="/notes" method="post">
+                <input type="hidden" name="id" id="id">
                 <label for="titre">titre</label><br>
                 <input type="text" id="titre" name="titre"><br>
                 <label for="description">Description</label><br>
@@ -25,10 +26,26 @@
                 <% for(i=0; i<resultat.length; i++) { %>
                     <h3><%= resultat[i].titre %></h3>
                     <p><%= resultat[i].description %></p>
-                    
+                    <input type="button" name="update" id="update" value="Modifier" onclick='updateData("<%= resultat[i].id %>", "<%= resultat[i].titre %>", "<%= resultat[i].description %>" )''>
+                    <input type="button" name="del" id="del" value="Enlever" onclick='deleteData("<%= resultat[i].id %>")'>
                 <% } %>
             </ul>
         </section>
     </div>
 </body>
+
+<script>
+    function updateData(id, titre, desc){
+        document.getElementById('id').value = id;
+        document.getElementById('titre').value = titre;
+        document.getElementById('description').value = desc;
+    }
+
+    function deleteData(id) {
+        let pointFinal = "notes/"+ id;
+        fetch(pointFinal, {method : "DELETE"}
+        ).then((data) => window.location.href = data.rootRacine
+        ).catch((error )=> console.log(error));
+    }
+</script>
 </html>
